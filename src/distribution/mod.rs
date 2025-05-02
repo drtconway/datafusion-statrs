@@ -1,0 +1,18 @@
+
+pub mod bernoulli;
+pub mod beta;
+pub mod binomial;
+pub mod cauchy;
+pub mod chi;
+pub mod chi_squared;
+pub mod dirac;
+pub mod erlang;
+pub mod exp;
+pub mod fisher_snedecor;
+pub mod gamma;
+pub mod gumbel;
+pub mod inverse_gamma;
+pub mod laplace;
+pub mod log_normal;
+pub mod negative_binomial;
+pub mod normal;

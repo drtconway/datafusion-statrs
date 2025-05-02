@@ -1,0 +1,11 @@
+[package]
+name = "datafusion-statrs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+datafusion = "47.0.0"
+datafusion-doc = "47.0.0"
+datafusion-macros = "47.0.0"
+statrs = "0.18.0"
+tokio = "1.44.2"

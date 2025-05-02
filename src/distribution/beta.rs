@@ -1,0 +1,197 @@
+use datafusion::logical_expr::ScalarUDF;
+use statrs::distribution::Beta;
+
+use crate::utils::continuous3f::Continuous3F;
+use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
+
+pub type Pdf = Continuous3F<PdfEvaluator3F<Beta>>;
+
+pub fn pdf() -> ScalarUDF {
+    ScalarUDF::from(Pdf::new("beta_pdf"))
+}
+
+pub type Cdf = Continuous3F<CdfEvaluator3F<Beta>>;
+
+pub fn cdf() -> ScalarUDF {
+    ScalarUDF::from(Cdf::new("beta_cdf"))
+}
+
+pub type Sf = Continuous3F<SfEvaluator3F<Beta>>;
+
+pub fn sf() -> ScalarUDF {
+    ScalarUDF::from(Sf::new("beta_sf"))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use datafusion::{
+        arrow::{
+            array::{Float64Array, RecordBatch},
+            datatypes::{DataType, Field, Schema, SchemaRef},
+        },
+        common::cast::as_float64_array,
+        error::DataFusionError,
+        prelude::{SessionContext, col},
+    };
+    use statrs::distribution::BetaError;
+
+    use super::*;
+
+    fn get_schema() -> SchemaRef {
+        SchemaRef::new(Schema::new(vec![
+            Field::new("x", DataType::Float64, true),
+            Field::new("a", DataType::Float64, true),
+            Field::new("b", DataType::Float64, true),
+        ]))
+    }
+
+    fn make_records(rows: Vec<(Option<f64>, Option<f64>, Option<f64>)>) -> RecordBatch {
+        let mut xs = Vec::new();
+        let mut as_ = Vec::new();
+        let mut bs = Vec::new();
+        for row in rows {
+            xs.push(row.0);
+            as_.push(row.1);
+            bs.push(row.2);
+        }
+
+        RecordBatch::try_new(
+            get_schema(),
+            vec![
+                Arc::new(Float64Array::from(xs)),
+                Arc::new(Float64Array::from(as_)),
+                Arc::new(Float64Array::from(bs)),
+            ],
+        )
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn beta_pdf_success() {
+        let pdf = pdf();
+
+        let recs = make_records(vec![
+            (Some(0.25), Some(2.0), Some(8.5)),
+            (Some(0.75), Some(2.0), Some(8.5)),
+            (None, Some(3.0), Some(1.25)),
+            (Some(0.01), None, Some(5.25)),
+        ]);
+
+        let ctx = SessionContext::new();
+        ctx.register_batch("tbl", recs).unwrap();
+        let df = ctx.table("tbl").await.unwrap();
+        let res = df
+            .select(vec![
+                (pdf.call(vec![col("x"), col("a"), col("b")])).alias("q"),
+            ])
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 4);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), 2.3336838198042265);
+        assert_eq!(res_col.value(1), 0.0018482208251953966);
+        assert!(res_col.value(2).is_nan());
+        assert!(res_col.value(3).is_nan());
+    }
+
+    #[tokio::test]
+    async fn beta_pdf_failure_1() {
+        let pdf = pdf();
+
+        let recs = make_records(vec![(Some(0.0), Some(3.0), Some(-1.25))]);
+
+        let ctx = SessionContext::new();
+        ctx.register_batch("tbl", recs).unwrap();
+        let df = ctx.table("tbl").await.unwrap();
+        let res = df
+            .select(vec![
+                (pdf.call(vec![col("x"), col("a"), col("b")])).alias("q"),
+            ])
+            .unwrap()
+            .collect()
+            .await;
+        match res {
+            Err(DataFusionError::External(e)) => {
+                let be = e.downcast::<BetaError>().unwrap();
+                assert_eq!(*be.as_ref(), BetaError::ShapeBInvalid);
+            }
+            _ => {
+                println!("unexpected result: {:?}", res);
+                assert!(false);
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn beta_cdf_success() {
+        let pmf = cdf();
+
+        let recs = make_records(vec![
+            (Some(0.25), Some(2.0), Some(8.5)),
+            (Some(0.75), Some(2.0), Some(8.5)),
+            (None, Some(3.0), Some(1.25)),
+            (Some(0.01), None, Some(5.25)),
+        ]);
+
+        let ctx = SessionContext::new();
+        ctx.register_batch("tbl", recs).unwrap();
+        let df = ctx.table("tbl").await.unwrap();
+        let res = df
+            .select(vec![
+                (pmf.call(vec![col("x"), col("a"), col("b")])).alias("q"),
+            ])
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 4);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), 0.7290614760289211);
+        assert_eq!(res_col.value(1), 0.999943733215332);
+        assert!(res_col.value(2).is_nan());
+        assert!(res_col.value(3).is_nan());
+    }
+
+    #[tokio::test]
+    async fn beta_sf_success() {
+        let pmf = sf();
+
+        let recs = make_records(vec![
+            (Some(0.25), Some(2.0), Some(8.5)),
+            (Some(0.75), Some(2.0), Some(8.5)),
+            (None, Some(3.0), Some(1.25)),
+            (Some(0.01), None, Some(5.25)),
+        ]);
+
+        let ctx = SessionContext::new();
+        ctx.register_batch("tbl", recs).unwrap();
+        let df = ctx.table("tbl").await.unwrap();
+        let res = df
+            .select(vec![
+                (pmf.call(vec![col("x"), col("a"), col("b")])).alias("q"),
+            ])
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 4);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), 0.2709385239710789);
+        assert_eq!(res_col.value(1), 5.626678466797133e-5);
+        assert!(res_col.value(2).is_nan());
+        assert!(res_col.value(3).is_nan());
+    }
+}
