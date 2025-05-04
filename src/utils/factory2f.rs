@@ -9,6 +9,7 @@ use statrs::distribution::Laplace;
 use statrs::distribution::LogNormal;
 use statrs::distribution::NegativeBinomial;
 use statrs::distribution::Normal;
+use statrs::distribution::Pareto;
 
 pub trait Factory2F:
     std::fmt::Debug + Send + Sync + Sized + 'static
@@ -76,3 +77,8 @@ impl Factory2F for Normal {
     }
 }
 
+impl Factory2F for Pareto {
+    fn make(p1: f64, p2: f64) -> Result<Self, DataFusionError> {
+        Pareto::new(p1, p2).map_err(|e| DataFusionError::External(Box::new(e)))
+    }
+}

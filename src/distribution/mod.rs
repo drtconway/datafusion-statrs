@@ -17,3 +17,4 @@ pub mod laplace;
 pub mod log_normal;
 pub mod negative_binomial;
 pub mod normal;
+pub mod pareto;
