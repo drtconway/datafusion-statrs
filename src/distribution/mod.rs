@@ -12,6 +12,7 @@ pub mod fisher_snedecor;
 pub mod gamma;
 pub mod geometric;
 pub mod gumbel;
+pub mod hypergeometric;
 pub mod inverse_gamma;
 pub mod laplace;
 pub mod log_normal;
