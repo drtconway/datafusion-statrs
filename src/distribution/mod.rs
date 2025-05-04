@@ -10,6 +10,7 @@ pub mod erlang;
 pub mod exp;
 pub mod fisher_snedecor;
 pub mod gamma;
+pub mod geometric;
 pub mod gumbel;
 pub mod inverse_gamma;
 pub mod laplace;
