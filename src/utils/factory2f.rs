@@ -11,6 +11,7 @@ use statrs::distribution::NegativeBinomial;
 use statrs::distribution::Normal;
 use statrs::distribution::Pareto;
 use statrs::distribution::Uniform;
+use statrs::distribution::Weibull;
 
 pub trait Factory2F:
     std::fmt::Debug + Send + Sync + Sized + 'static
@@ -87,5 +88,11 @@ impl Factory2F for Pareto {
 impl Factory2F for Uniform {
     fn make(p1: f64, p2: f64) -> Result<Self, DataFusionError> {
         Uniform::new(p1, p2).map_err(|e| DataFusionError::External(Box::new(e)))
+    }
+}
+
+impl Factory2F for Weibull {
+    fn make(p1: f64, p2: f64) -> Result<Self, DataFusionError> {
+        Weibull::new(p1, p2).map_err(|e| DataFusionError::External(Box::new(e)))
     }
 }
