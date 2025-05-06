@@ -1,3 +1,5 @@
+use datafusion::error::DataFusionError;
+use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::FisherSnedecor;
 
@@ -20,6 +22,10 @@ pub type Sf = Continuous3F<SfEvaluator3F<FisherSnedecor>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("fisher_snedecor_sf"))
+}
+
+pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
+    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]

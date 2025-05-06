@@ -1,3 +1,5 @@
+use datafusion::error::DataFusionError;
+use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Dirac;
 
@@ -22,6 +24,10 @@ pub type Sf = Continuous2F<SfEvaluator2F<Dirac>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("dirac_sf"))
+}
+
+pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
+    crate::utils::register::register(registry, vec![cdf(), sf()])
 }
 
 #[cfg(test)]

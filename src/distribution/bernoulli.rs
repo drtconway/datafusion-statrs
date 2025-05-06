@@ -1,3 +1,6 @@
+
+use datafusion::error::DataFusionError;
+use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Bernoulli;
 
@@ -20,6 +23,10 @@ pub type Sf = Discrete1U1F<SfEvaluator1U1F<Bernoulli>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("bernoulli_sf"))
+}
+
+pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
+    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]

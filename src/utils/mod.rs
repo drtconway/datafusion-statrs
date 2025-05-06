@@ -24,3 +24,4 @@ pub mod factory2f;
 pub mod factory2i;
 pub mod factory3f;
 pub mod factory3u;
+pub mod register;

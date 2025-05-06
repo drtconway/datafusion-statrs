@@ -1,3 +1,5 @@
+use datafusion::error::DataFusionError;
+use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Geometric;
 
@@ -20,6 +22,10 @@ pub type Sf = Discrete1U1F<SfEvaluator1U1F<Geometric>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("geometric_sf"))
+}
+
+pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
+    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]

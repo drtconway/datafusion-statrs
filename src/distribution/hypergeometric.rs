@@ -1,3 +1,5 @@
+use datafusion::error::DataFusionError;
+use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Hypergeometric;
 
@@ -20,6 +22,10 @@ pub type Sf = Discrete4U<SfEvaluator4U<Hypergeometric>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("hypergeometric_sf"))
+}
+
+pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
+    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]

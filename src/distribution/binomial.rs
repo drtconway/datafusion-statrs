@@ -1,3 +1,5 @@
+use datafusion::error::DataFusionError;
+use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Binomial;
 
@@ -20,6 +22,10 @@ pub type Sf = Discrete2U1F<SfEvaluator2U1F<Binomial>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("binomial_sf"))
+}
+
+pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
+    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]

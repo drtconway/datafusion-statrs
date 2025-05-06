@@ -3,9 +3,13 @@ name = "datafusion-statrs"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "datafusion_statrs"
+
 [dependencies]
 datafusion = "47.0.0"
 datafusion-doc = "47.0.0"
 datafusion-macros = "47.0.0"
+log = "0.4.27"
 statrs = "0.18.0"
 tokio = "1.44.2"

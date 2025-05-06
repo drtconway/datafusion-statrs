@@ -1,3 +1,5 @@
+use datafusion::error::DataFusionError;
+use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::StudentsT;
 
@@ -20,6 +22,10 @@ pub type Sf = Continuous4F<SfEvaluator4F<StudentsT>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("students_t_sf"))
+}
+
+pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
+    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
