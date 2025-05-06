@@ -2,16 +2,13 @@ use datafusion::prelude::{CsvReadOptions, SessionContext};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> std::io::Result<()> {
-    let binom_cdf = datafusion_statrs::distribution::binomial::cdf();
-    let binom_sf = datafusion_statrs::distribution::binomial::sf();
 
     let mut opts = CsvReadOptions::default();
     opts.delimiter = b'\t';
     opts.file_extension = ".tsv";
 
-    let ctx = SessionContext::new();
-    ctx.register_udf(binom_cdf);
-    ctx.register_udf(binom_sf);
+    let mut ctx = SessionContext::new();
+    datafusion_statrs::distribution::binomial::register(&mut ctx)?;
     ctx.register_csv("coins", "examples/coins.tsv", opts)
         .await?;
     ctx.sql("WITH
