@@ -1,3 +1,37 @@
+//! Module containing functions to the Gumbel Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Gumbel`].
+//! 
+//! The [Gumbel Distribution](https://en.wikipedia.org/wiki/Gumbel_distribution) has two
+//! parameters:
+//! 
+//! μ: μ ∈ R (real numbers)
+//! β: 0 < β
+//! 
+//! Usage:
+//! 
+//! `gumbel_pdf(x, μ, β)`  
+//! `gumbel_cdf(x, μ, β)`  
+//! `gumbel_sf(x, μ, β)`
+//! 
+//! with
+//! 
+//!   `x`: [-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `μ`: [-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `β`: (0, +∞) `Float64`/`DOUBLE`,
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::gumbel::register(&mut ctx)?;
+//!     ctx.sql("SELECT gumbel_pdf(1.25, 1.5, 3.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -8,18 +42,21 @@ use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluat
 
 type Pdf = Continuous3F<PdfEvaluator3F<Gumbel>>;
 
+/// ScalarUDF for the Gumbel Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("gumbel_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Gumbel>>;
 
+/// ScalarUDF for the Gumbel Distribution PDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("gumbel_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<Gumbel>>;
 
+/// ScalarUDF for the Gumbel Distribution PDF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("gumbel_sf"))
 }
