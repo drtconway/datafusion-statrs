@@ -1,3 +1,37 @@
+//! Module containing functions to the Erlang Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Erlang`].
+//! 
+//! The [Erlang Distribution](https://en.wikipedia.org/wiki/Erlang_distribution) has two
+//! parameters:
+//! 
+//! k: k ∈ N (natural numbers)  
+//! λ: 0 < λ
+//! 
+//! Usage:
+//! 
+//! `erlang_pdf(x, k, λ)`  
+//! `erlang_cdf(x, k, λ)`  
+//! `erlang_sf(x, k, λ)`
+//! 
+//! with
+//! 
+//!   `x`: [0], +∞) `Float64`/`DOUBLE`,  
+//!   `k`: (-∞, +∞) `UInt64`/`BIGINT UNSIGNED`,  
+//!   `λ`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::erlang::register(&mut ctx)?;
+//!     ctx.sql("SELECT erlang_cdf(1.0, CAST(5 AS BIGINT UNSIGNED), 2.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +40,28 @@ use statrs::distribution::Erlang;
 use crate::utils::continuous1f1u1f::Continuous1F1U1F;
 use crate::utils::evaluator1f1u1f::{CdfEvaluator1F1U1F, PdfEvaluator1F1U1F, SfEvaluator1F1U1F};
 
-pub type Pdf = Continuous1F1U1F<PdfEvaluator1F1U1F<Erlang>>;
+type Pdf = Continuous1F1U1F<PdfEvaluator1F1U1F<Erlang>>;
 
+/// ScalarUDF for the Erlang Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("erlang_pdf"))
 }
 
-pub type Cdf = Continuous1F1U1F<CdfEvaluator1F1U1F<Erlang>>;
+type Cdf = Continuous1F1U1F<CdfEvaluator1F1U1F<Erlang>>;
 
+/// ScalarUDF for the Erlang Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("erlang_cdf"))
 }
 
-pub type Sf = Continuous1F1U1F<SfEvaluator1F1U1F<Erlang>>;
+type Sf = Continuous1F1U1F<SfEvaluator1F1U1F<Erlang>>;
 
+/// ScalarUDF for the Erlang Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("erlang_sf"))
 }
 
+/// Register the functions for the Erlang Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
