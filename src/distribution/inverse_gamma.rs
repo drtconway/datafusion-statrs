@@ -6,19 +6,19 @@ use statrs::distribution::InverseGamma;
 use crate::utils::continuous3f::Continuous3F;
 use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<InverseGamma>>;
+type Pdf = Continuous3F<PdfEvaluator3F<InverseGamma>>;
 
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("inverse_inverse_gamma_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<InverseGamma>>;
+type Cdf = Continuous3F<CdfEvaluator3F<InverseGamma>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("inverse_inverse_gamma_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<InverseGamma>>;
+type Sf = Continuous3F<SfEvaluator3F<InverseGamma>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("inverse_inverse_gamma_sf"))

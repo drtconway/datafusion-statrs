@@ -14,9 +14,6 @@ pub struct PmfEvaluator4U<D: Factory3U + Discrete<u64, f64>> {
     _phantom: PhantomData<D>,
 }
 
-impl<D: Factory3U + Discrete<u64, f64>> PmfEvaluator4U<D> {
-}
-
 impl<D: Factory3U + Discrete<u64, f64>> Evaluator4U for PmfEvaluator4U<D> {
     fn eval(x: u64, p1: u64, p2: u64, p3: u64) -> Result<Option<f64>, DataFusionError> {
         let d = D::make(p1, p2, p3)?;
@@ -29,14 +26,6 @@ pub struct CdfEvaluator4U<D: Factory3U + DiscreteCDF<u64, f64>> {
     _phantom: PhantomData<D>,
 }
 
-impl<D: Factory3U + DiscreteCDF<u64, f64>> CdfEvaluator4U<D> {
-    pub fn new() -> Self {
-        CdfEvaluator4U {
-            _phantom: PhantomData,
-        }
-    }
-}
-
 impl<D: Factory3U + DiscreteCDF<u64, f64>> Evaluator4U for CdfEvaluator4U<D> {
     fn eval(x: u64, p1: u64, p2: u64, p3: u64) -> Result<Option<f64>, DataFusionError> {
         let d = D::make(p1, p2, p3)?;
@@ -47,14 +36,6 @@ impl<D: Factory3U + DiscreteCDF<u64, f64>> Evaluator4U for CdfEvaluator4U<D> {
 #[derive(Debug)]
 pub struct SfEvaluator4U<D: Factory3U + DiscreteCDF<u64, f64>> {
     _phantom: PhantomData<D>,
-}
-
-impl<D: Factory3U + DiscreteCDF<u64, f64>> SfEvaluator4U<D> {
-    pub fn new() -> Self {
-        SfEvaluator4U {
-            _phantom: PhantomData,
-        }
-    }
 }
 
 impl<D: Factory3U + DiscreteCDF<u64, f64>> Evaluator4U for SfEvaluator4U<D> {

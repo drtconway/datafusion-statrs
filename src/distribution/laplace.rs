@@ -7,19 +7,19 @@ use statrs::distribution::Laplace;
 use crate::utils::continuous3f::Continuous3F;
 use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<Laplace>>;
+type Pdf = Continuous3F<PdfEvaluator3F<Laplace>>;
 
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("laplace_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<Laplace>>;
+type Cdf = Continuous3F<CdfEvaluator3F<Laplace>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("laplace_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<Laplace>>;
+type Sf = Continuous3F<SfEvaluator3F<Laplace>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("laplace_sf"))

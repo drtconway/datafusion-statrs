@@ -6,19 +6,19 @@ use statrs::distribution::Hypergeometric;
 use crate::utils::discrete4u::Discrete4U;
 use crate::utils::evaluator4u::{CdfEvaluator4U, PmfEvaluator4U, SfEvaluator4U};
 
-pub type Pmf = Discrete4U<PmfEvaluator4U<Hypergeometric>>;
+type Pmf = Discrete4U<PmfEvaluator4U<Hypergeometric>>;
 
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("hypergeometric_pmf"))
 }
 
-pub type Cdf = Discrete4U<CdfEvaluator4U<Hypergeometric>>;
+type Cdf = Discrete4U<CdfEvaluator4U<Hypergeometric>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("hypergeometric_cdf"))
 }
 
-pub type Sf = Discrete4U<SfEvaluator4U<Hypergeometric>>;
+type Sf = Discrete4U<SfEvaluator4U<Hypergeometric>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("hypergeometric_sf"))

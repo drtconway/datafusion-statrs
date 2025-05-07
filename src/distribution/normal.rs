@@ -6,19 +6,19 @@ use statrs::distribution::Normal;
 use crate::utils::continuous3f::Continuous3F;
 use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<Normal>>;
+type Pdf = Continuous3F<PdfEvaluator3F<Normal>>;
 
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("normal_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<Normal>>;
+type Cdf = Continuous3F<CdfEvaluator3F<Normal>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("normal_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<Normal>>;
+type Sf = Continuous3F<SfEvaluator3F<Normal>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("normal_sf"))

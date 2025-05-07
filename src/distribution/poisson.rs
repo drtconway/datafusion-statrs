@@ -6,19 +6,19 @@ use statrs::distribution::Poisson;
 use super::super::utils::discrete1u1f::Discrete1U1F;
 use super::super::utils::evaluator1u1f::{CdfEvaluator1U1F, PmfEvaluator1U1F, SfEvaluator1U1F};
 
-pub type Pmf = Discrete1U1F<PmfEvaluator1U1F<Poisson>>;
+type Pmf = Discrete1U1F<PmfEvaluator1U1F<Poisson>>;
 
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("poisson_pmf"))
 }
 
-pub type Cdf = Discrete1U1F<CdfEvaluator1U1F<Poisson>>;
+type Cdf = Discrete1U1F<CdfEvaluator1U1F<Poisson>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("poisson_cdf"))
 }
 
-pub type Sf = Discrete1U1F<SfEvaluator1U1F<Poisson>>;
+type Sf = Discrete1U1F<SfEvaluator1U1F<Poisson>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("poisson_sf"))

@@ -6,19 +6,19 @@ use statrs::distribution::LogNormal;
 use super::super::utils::continuous3f::Continuous3F;
 use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<LogNormal>>;
+type Pdf = Continuous3F<PdfEvaluator3F<LogNormal>>;
 
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("log_normal_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<LogNormal>>;
+type Cdf = Continuous3F<CdfEvaluator3F<LogNormal>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("log_normal_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<LogNormal>>;
+type Sf = Continuous3F<SfEvaluator3F<LogNormal>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("log_normal_sf"))

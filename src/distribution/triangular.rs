@@ -6,19 +6,19 @@ use statrs::distribution::Triangular;
 use crate::utils::continuous4f::Continuous4F;
 use crate::utils::evaluator4f::{CdfEvaluator4F, PdfEvaluator4F, SfEvaluator4F};
 
-pub type Pdf = Continuous4F<PdfEvaluator4F<Triangular>>;
+type Pdf = Continuous4F<PdfEvaluator4F<Triangular>>;
 
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("triangular_pdf"))
 }
 
-pub type Cdf = Continuous4F<CdfEvaluator4F<Triangular>>;
+type Cdf = Continuous4F<CdfEvaluator4F<Triangular>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("triangular_cdf"))
 }
 
-pub type Sf = Continuous4F<SfEvaluator4F<Triangular>>;
+type Sf = Continuous4F<SfEvaluator4F<Triangular>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("triangular_sf"))

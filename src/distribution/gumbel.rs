@@ -6,19 +6,19 @@ use statrs::distribution::Gumbel;
 use super::super::utils::continuous3f::Continuous3F;
 use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<Gumbel>>;
+type Pdf = Continuous3F<PdfEvaluator3F<Gumbel>>;
 
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("gumbel_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<Gumbel>>;
+type Cdf = Continuous3F<CdfEvaluator3F<Gumbel>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("gumbel_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<Gumbel>>;
+type Sf = Continuous3F<SfEvaluator3F<Gumbel>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("gumbel_sf"))

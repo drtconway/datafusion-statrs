@@ -6,19 +6,19 @@ use statrs::distribution::NegativeBinomial;
 use crate::utils::discrete1u2f::Discrete1U2F;
 use crate::utils::evaluator1u2f::{CdfEvaluator1U2F, PmfEvaluator1U2F, SfEvaluator1U2F};
 
-pub type Pmf = Discrete1U2F<PmfEvaluator1U2F<NegativeBinomial>>;
+type Pmf = Discrete1U2F<PmfEvaluator1U2F<NegativeBinomial>>;
 
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("negative_binomial_pmf"))
 }
 
-pub type Cdf = Discrete1U2F<CdfEvaluator1U2F<NegativeBinomial>>;
+type Cdf = Discrete1U2F<CdfEvaluator1U2F<NegativeBinomial>>;
 
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("negative_binomial_cdf"))
 }
 
-pub type Sf = Discrete1U2F<SfEvaluator1U2F<NegativeBinomial>>;
+type Sf = Discrete1U2F<SfEvaluator1U2F<NegativeBinomial>>;
 
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("negative_binomial_sf"))
