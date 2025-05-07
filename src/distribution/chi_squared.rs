@@ -1,3 +1,39 @@
+//! Module containing functions to the Chi-squared Distribution.
+//! 
+//! Implemented by [`statrs::distribution::ChiSquared`].
+//! 
+//! The [Chi-squared Distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution) has one
+//! parameter:
+//! 
+//! k: 0 ≤ k
+//! 
+//! NB the chi-squared is usually parameterised with k ∈ N, but as the underlying implementation is
+//! built on the continuous Gamma distribution, the implementation in [`statrs::distribution::ChiSquared`]
+//! is generalised to allow k to be continuous.
+//! 
+//! Usage:
+//! 
+//! `chi_squared_pdf(x, k)`  
+//! `chi_squared_cdf(x, k)`  
+//! `chi_squared_sf(x, k)`
+//! 
+//! with
+//! 
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
+//!   `k`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::chi_squared::register(&mut ctx)?;
+//!     ctx.sql("SELECT chi_squared_pdf(1.25, 4.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +42,28 @@ use statrs::distribution::ChiSquared;
 use crate::utils::continuous2f::Continuous2F;
 use crate::utils::evaluator2f::{CdfEvaluator2F, PdfEvaluator2F, SfEvaluator2F};
 
-pub type Pdf = Continuous2F<PdfEvaluator2F<ChiSquared>>;
+type Pdf = Continuous2F<PdfEvaluator2F<ChiSquared>>;
 
+/// ScalarUDF for the Chi-squared Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("chi_squared_pdf"))
 }
 
-pub type Cdf = Continuous2F<CdfEvaluator2F<ChiSquared>>;
+type Cdf = Continuous2F<CdfEvaluator2F<ChiSquared>>;
 
+/// ScalarUDF for the Chi-squared Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("chi_squared_cdf"))
 }
 
-pub type Sf = Continuous2F<SfEvaluator2F<ChiSquared>>;
+type Sf = Continuous2F<SfEvaluator2F<ChiSquared>>;
 
+/// ScalarUDF for the Chi-squared Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("chi_squared_sf"))
 }
 
+/// Register the functions for the Chi-squared Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
