@@ -14,9 +14,6 @@ pub struct PdfEvaluator2F<D: Factory1F + Continuous<f64, f64>> {
     _phantom: PhantomData<D>,
 }
 
-impl<D: Factory1F + Continuous<f64, f64>> PdfEvaluator2F<D> {
-}
-
 impl<D: Factory1F + Continuous<f64, f64>> Evaluator2F for PdfEvaluator2F<D> {
     fn eval(x: f64, p: f64) -> Result<Option<f64>, DataFusionError> {
         let d = D::make(p)?;
@@ -25,11 +22,20 @@ impl<D: Factory1F + Continuous<f64, f64>> Evaluator2F for PdfEvaluator2F<D> {
 }
 
 #[derive(Debug)]
-pub struct CdfEvaluator2F<D: Factory1F + ContinuousCDF<f64, f64>> {
+pub struct LnPdfEvaluator2F<D: Factory1F + Continuous<f64, f64>> {
     _phantom: PhantomData<D>,
 }
 
-impl<D: Factory1F + ContinuousCDF<f64, f64>> CdfEvaluator2F<D> {
+impl<D: Factory1F + Continuous<f64, f64>> Evaluator2F for LnPdfEvaluator2F<D> {
+    fn eval(x: f64, p: f64) -> Result<Option<f64>, DataFusionError> {
+        let d = D::make(p)?;
+        Ok(Some(d.ln_pdf(x)))
+    }
+}
+
+#[derive(Debug)]
+pub struct CdfEvaluator2F<D: Factory1F + ContinuousCDF<f64, f64>> {
+    _phantom: PhantomData<D>,
 }
 
 impl<D: Factory1F + ContinuousCDF<f64, f64>> Evaluator2F for CdfEvaluator2F<D> {
@@ -42,9 +48,6 @@ impl<D: Factory1F + ContinuousCDF<f64, f64>> Evaluator2F for CdfEvaluator2F<D> {
 #[derive(Debug)]
 pub struct SfEvaluator2F<D: Factory1F + ContinuousCDF<f64, f64>> {
     _phantom: PhantomData<D>,
-}
-
-impl<D: Factory1F + ContinuousCDF<f64, f64>> SfEvaluator2F<D> {
 }
 
 impl<D: Factory1F + ContinuousCDF<f64, f64>> Evaluator2F for SfEvaluator2F<D> {
