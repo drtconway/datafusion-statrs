@@ -5,7 +5,7 @@
 //! The [Chi-squared Distribution](https://en.wikipedia.org/wiki/Chi-squared_distribution) has one
 //! parameter:
 //! 
-//! k: 0 ≤ k
+//! k: 0 < k
 //! 
 //! NB the chi-squared is usually parameterised with k ∈ N, but as the underlying implementation is
 //! built on the continuous Gamma distribution, the implementation in [`statrs::distribution::ChiSquared`]
