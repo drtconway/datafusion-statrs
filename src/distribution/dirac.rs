@@ -1,3 +1,34 @@
+//! Module containing functions to the Dirac Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Dirac`].
+//! 
+//! The [Dirac Distribution](https://en.wikipedia.org/wiki/Dirac_delta_function) has one
+//! parameter:
+//! 
+//! a: a ∈ R (real numbers)
+//! 
+//! Usage:
+//! 
+//! `dirac_cdf(x, a)`  
+//! `dirac_sf(x, a)`
+//! 
+//! with
+//! 
+//!   `x`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `a`: (-∞, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::dirac::register(&mut ctx)?;
+//!     ctx.sql("SELECT dirac_cdf(0.1, 1.2)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -7,25 +38,28 @@ use crate::utils::continuous2f::Continuous2F;
 use crate::utils::evaluator2f::{CdfEvaluator2F, SfEvaluator2F};
 
 /*
-pub type Pdf = Continuous2F<PdfEvaluator2F<Dirac>>;
+type Pdf = Continuous2F<PdfEvaluator2F<Dirac>>;
 
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("dirac_pdf"))
 }
 */
 
-pub type Cdf = Continuous2F<CdfEvaluator2F<Dirac>>;
+type Cdf = Continuous2F<CdfEvaluator2F<Dirac>>;
 
+/// ScalarUDF for the Dirac Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("dirac_cdf"))
 }
 
-pub type Sf = Continuous2F<SfEvaluator2F<Dirac>>;
+type Sf = Continuous2F<SfEvaluator2F<Dirac>>;
 
+/// ScalarUDF for the Dirac Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("dirac_sf"))
 }
 
+/// Register the functions for the Dirac Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![cdf(), sf()])
 }
