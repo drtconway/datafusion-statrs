@@ -1,3 +1,35 @@
+//! Module containing functions to the Exponential Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Exp`].
+//! 
+//! The [Exponential Distribution](https://en.wikipedia.org/wiki/Exponential_distribution) has one
+//! parameter:
+//! 
+//! λ: 0 < λ
+//! 
+//! Usage:
+//! 
+//! `exp_pdf(x, λ)`  
+//! `exp_cdf(x, λ)`  
+//! `exp_sf(x, λ)`
+//! 
+//! with
+//! 
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
+//!   `λ`: (0, +∞) `Float64`/`DOUBLE`,
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::exp::register(&mut ctx)?;
+//!     ctx.sql("SELECT exp_pdf(1.25, 1.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +38,28 @@ use statrs::distribution::Exp;
 use crate::utils::continuous2f::Continuous2F;
 use crate::utils::evaluator2f::{CdfEvaluator2F, PdfEvaluator2F, SfEvaluator2F};
 
-pub type Pdf = Continuous2F<PdfEvaluator2F<Exp>>;
+type Pdf = Continuous2F<PdfEvaluator2F<Exp>>;
 
+/// ScalarUDF for the Exponential Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("exp_pdf"))
 }
 
-pub type Cdf = Continuous2F<CdfEvaluator2F<Exp>>;
+type Cdf = Continuous2F<CdfEvaluator2F<Exp>>;
 
+/// ScalarUDF for the Exponential Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("exp_cdf"))
 }
 
-pub type Sf = Continuous2F<SfEvaluator2F<Exp>>;
+type Sf = Continuous2F<SfEvaluator2F<Exp>>;
 
+/// ScalarUDF for the Exponential Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("exp_sf"))
 }
 
+/// Register the functions for the Exponential Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
