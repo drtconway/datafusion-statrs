@@ -1,3 +1,35 @@
+//! Module containing functions to the Chi Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Chi`].
+//! 
+//! The [Chi Distribution](https://en.wikipedia.org/wiki/Chi_distribution) has one
+//! parameter:
+//! 
+//! k: k ∈ N (natural numbers)
+//! 
+//! Usage:
+//! 
+//! `chi_pdf(x, k)`  
+//! `chi_cdf(x, k)`  
+//! `chi__sf(x, k)`
+//! 
+//! with
+//! 
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
+//!   `k`: (0, +∞) `UInt64`/`BIGINT UNSIGNED`,
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::chi::register(&mut ctx)?;
+//!     ctx.sql("SELECT chi_pdf(1.25, CAST(4 AS BIGINT UNSIGNED))").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +38,28 @@ use statrs::distribution::Chi;
 use crate::utils::continuous1f1u::Continuous1F1U;
 use crate::utils::evaluator1f1u::{CdfEvaluator1F1U, PdfEvaluator1F1U, SfEvaluator1F1U};
 
-pub type Pdf = Continuous1F1U<PdfEvaluator1F1U<Chi>>;
+type Pdf = Continuous1F1U<PdfEvaluator1F1U<Chi>>;
 
+/// ScalarUDF for the Chi Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("chi_pdf"))
 }
 
-pub type Cdf = Continuous1F1U<CdfEvaluator1F1U<Chi>>;
+type Cdf = Continuous1F1U<CdfEvaluator1F1U<Chi>>;
 
+/// ScalarUDF for the Chi Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("chi_cdf"))
 }
 
-pub type Sf = Continuous1F1U<SfEvaluator1F1U<Chi>>;
+type Sf = Continuous1F1U<SfEvaluator1F1U<Chi>>;
 
+/// ScalarUDF for the Chi Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("chi_sf"))
 }
 
+/// Register the functions for the Binomial Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
