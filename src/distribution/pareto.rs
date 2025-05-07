@@ -8,18 +8,21 @@ use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluat
 
 type Pdf = Continuous3F<PdfEvaluator3F<Pareto>>;
 
+/// ScalarUDF for the Pareto PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("pareto_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Pareto>>;
 
+/// ScalarUDF for the Pareto PDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("pareto_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<Pareto>>;
 
+/// ScalarUDF for the Pareto PDF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("pareto_sf"))
 }

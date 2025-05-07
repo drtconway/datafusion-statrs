@@ -8,18 +8,21 @@ use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluat
 
 type Pdf = Continuous3F<PdfEvaluator3F<LogNormal>>;
 
+/// ScalarUDF for the log-Normal PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("log_normal_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<LogNormal>>;
 
+/// ScalarUDF for the log-Normal CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("log_normal_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<LogNormal>>;
 
+/// ScalarUDF for the log-Normal SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("log_normal_sf"))
 }
@@ -164,7 +167,7 @@ mod tests {
         assert_eq!(res[0].num_rows(), 4);
         let res_col = as_float64_array(res[0].column(0)).unwrap();
         assert_eq!(res_col.value(0), 1.7764821120334314e-33);
-        assert_eq!(res_col.value(1),  1.3862566635680422e-20);
+        assert_eq!(res_col.value(1), 1.3862566635680422e-20);
         assert!(res_col.value(2).is_nan());
         assert!(res_col.value(3).is_nan());
     }

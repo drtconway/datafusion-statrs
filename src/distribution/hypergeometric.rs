@@ -8,18 +8,21 @@ use crate::utils::evaluator4u::{CdfEvaluator4U, PmfEvaluator4U, SfEvaluator4U};
 
 type Pmf = Discrete4U<PmfEvaluator4U<Hypergeometric>>;
 
+/// ScalarUDF for the Hypergeometric Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("hypergeometric_pmf"))
 }
 
 type Cdf = Discrete4U<CdfEvaluator4U<Hypergeometric>>;
 
+/// ScalarUDF for the Hypergeometric Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("hypergeometric_cdf"))
 }
 
 type Sf = Discrete4U<SfEvaluator4U<Hypergeometric>>;
 
+/// ScalarUDF for the Hypergeometric Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("hypergeometric_sf"))
 }

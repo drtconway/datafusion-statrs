@@ -8,18 +8,21 @@ use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
 type Pdf = Continuous3F<PdfEvaluator3F<InverseGamma>>;
 
+/// ScalarUDF for the Inverse Gamma Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("inverse_inverse_gamma_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<InverseGamma>>;
 
+/// ScalarUDF for the Inverse Gamma Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("inverse_inverse_gamma_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<InverseGamma>>;
 
+/// ScalarUDF for the Inverse Gamma Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("inverse_inverse_gamma_sf"))
 }

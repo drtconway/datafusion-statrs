@@ -8,18 +8,21 @@ use super::super::utils::evaluator1u1f::{CdfEvaluator1U1F, PmfEvaluator1U1F, SfE
 
 type Pmf = Discrete1U1F<PmfEvaluator1U1F<Poisson>>;
 
+/// ScalarUDF for the Poisson PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("poisson_pmf"))
 }
 
 type Cdf = Discrete1U1F<CdfEvaluator1U1F<Poisson>>;
 
+/// ScalarUDF for the Poisson PDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("poisson_cdf"))
 }
 
 type Sf = Discrete1U1F<SfEvaluator1U1F<Poisson>>;
 
+/// ScalarUDF for the Poisson PDF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("poisson_sf"))
 }

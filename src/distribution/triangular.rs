@@ -8,18 +8,21 @@ use crate::utils::evaluator4f::{CdfEvaluator4F, PdfEvaluator4F, SfEvaluator4F};
 
 type Pdf = Continuous4F<PdfEvaluator4F<Triangular>>;
 
+/// ScalarUDF for the Triangular PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("triangular_pdf"))
 }
 
 type Cdf = Continuous4F<CdfEvaluator4F<Triangular>>;
 
+/// ScalarUDF for the Triangular PDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("triangular_cdf"))
 }
 
 type Sf = Continuous4F<SfEvaluator4F<Triangular>>;
 
+/// ScalarUDF for the Triangular PDF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("triangular_sf"))
 }
@@ -108,7 +111,7 @@ mod tests {
         assert_eq!(res[0].num_columns(), 1);
         assert_eq!(res[0].num_rows(), 4);
         let res_col = as_float64_array(res[0].column(0)).unwrap();
-        assert_eq!(res_col.value(0),  0.3333333333333333);
+        assert_eq!(res_col.value(0), 0.3333333333333333);
         assert_eq!(res_col.value(1), 0.16666666666666666);
         assert!(res_col.value(2).is_nan());
         assert!(res_col.value(3).is_nan());

@@ -8,18 +8,21 @@ use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
 type Pdf = Continuous3F<PdfEvaluator3F<Normal>>;
 
+/// ScalarUDF for the Normal PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("normal_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Normal>>;
 
+/// ScalarUDF for the Normal CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("normal_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<Normal>>;
 
+/// ScalarUDF for the Normal SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("normal_sf"))
 }
@@ -164,7 +167,7 @@ mod tests {
         assert_eq!(res[0].num_rows(), 4);
         let res_col = as_float64_array(res[0].column(0)).unwrap();
         assert_eq!(res_col.value(0), 6.220960574599358e-16);
-        assert_eq!(res_col.value(1),  3.167124183566376e-5);
+        assert_eq!(res_col.value(1), 3.167124183566376e-5);
         assert!(res_col.value(2).is_nan());
         assert!(res_col.value(3).is_nan());
     }

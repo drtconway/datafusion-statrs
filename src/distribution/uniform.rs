@@ -8,18 +8,21 @@ use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluat
 
 type Pdf = Continuous3F<PdfEvaluator3F<Uniform>>;
 
+/// ScalarUDF for the Uniform PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("uniform_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Uniform>>;
 
+/// ScalarUDF for the Uniform PDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("uniform_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<Uniform>>;
 
+/// ScalarUDF for the Uniform PDF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("uniform_sf"))
 }

@@ -8,18 +8,21 @@ use crate::utils::evaluator4f::{CdfEvaluator4F, PdfEvaluator4F, SfEvaluator4F};
 
 type Pdf = Continuous4F<PdfEvaluator4F<StudentsT>>;
 
+/// ScalarUDF for the Student's T PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("students_t_pdf"))
 }
 
 type Cdf = Continuous4F<CdfEvaluator4F<StudentsT>>;
 
+/// ScalarUDF for the Student's T PDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("students_t_cdf"))
 }
 
 type Sf = Continuous4F<SfEvaluator4F<StudentsT>>;
 
+/// ScalarUDF for the Student's T PDF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("students_t_sf"))
 }

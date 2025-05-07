@@ -8,18 +8,21 @@ use crate::utils::evaluator1u2f::{CdfEvaluator1U2F, PmfEvaluator1U2F, SfEvaluato
 
 type Pmf = Discrete1U2F<PmfEvaluator1U2F<NegativeBinomial>>;
 
+/// ScalarUDF for the Negative Binomial PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("negative_binomial_pmf"))
 }
 
 type Cdf = Discrete1U2F<CdfEvaluator1U2F<NegativeBinomial>>;
 
+/// ScalarUDF for the Negative Binomial CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("negative_binomial_cdf"))
 }
 
 type Sf = Discrete1U2F<SfEvaluator1U2F<NegativeBinomial>>;
 
+/// ScalarUDF for the Negative Binomial SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("negative_binomial_sf"))
 }

@@ -8,18 +8,21 @@ use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluat
 
 type Pdf = Continuous3F<PdfEvaluator3F<Weibull>>;
 
+/// ScalarUDF for the Weibull PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("weibull_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Weibull>>;
 
+/// ScalarUDF for the Weibull PDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("weibull_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<Weibull>>;
 
+/// ScalarUDF for the Weibull PDF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("weibull_sf"))
 }
