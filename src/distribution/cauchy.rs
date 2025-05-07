@@ -1,3 +1,37 @@
+//! Module containing functions to the Cauchy Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Cauchy`].
+//! 
+//! The [Cauchy Distribution](https://en.wikipedia.org/wiki/Cauchy_distribution) has two
+//! parameters:
+//! 
+//! x0: x0 ∈ R (real numbers)  
+//! γ: 0 < γ
+//! 
+//! Usage:
+//! 
+//! `bernoulli_pmf(x, x0, γ)`  
+//! `bernoulli_cdf(x, x0, γ)`  
+//! `bernoulli_sf(x, x0, γ)`
+//! 
+//! with
+//! 
+//!   `x`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `x0`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `γ`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::cauchy::register(&mut ctx)?;
+//!     ctx.sql("SELECT cauchy_cdf(-1.0, 2.0, 3.5)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +40,28 @@ use statrs::distribution::Cauchy;
 use crate::utils::continuous3f::Continuous3F;
 use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<Cauchy>>;
+type Pdf = Continuous3F<PdfEvaluator3F<Cauchy>>;
 
+/// ScalarUDF for the Cauchy Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("cauchy_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<Cauchy>>;
+type Cdf = Continuous3F<CdfEvaluator3F<Cauchy>>;
 
+/// ScalarUDF for the Cauchy Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("cauchy_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<Cauchy>>;
+type Sf = Continuous3F<SfEvaluator3F<Cauchy>>;
 
+/// ScalarUDF for the Cauchy Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("cauchy_sf"))
 }
 
+/// Register the functions for the Cauchy Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
