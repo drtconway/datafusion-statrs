@@ -1,3 +1,37 @@
+//! Module containing functions to the Beta Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Beta`].
+//! 
+//! The [Beta Distribution](https://en.wikipedia.org/wiki/Beta_distribution) has two
+//! parameters:
+//! 
+//! α: 0 < α  
+//! β: 0 < β
+//! 
+//! Usage:
+//! 
+//! `beta_pdf(x, α, β)`  
+//! `beta_cdf(x, α, β)`  
+//! `beta_sf(x, α, β)`
+//! 
+//! with
+//! 
+//!   `x`: [0, 1] `Float64`/`DOUBLE`,  
+//!   `α`: (0, +∞) `Float64`/`DOUBLE`,  
+//!   `β`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::beta::register(&mut ctx)?;
+//!     ctx.sql("SELECT beta_cdf(0.5, 5.0, 8.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +40,28 @@ use statrs::distribution::Beta;
 use crate::utils::continuous3f::Continuous3F;
 use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<Beta>>;
+type Pdf = Continuous3F<PdfEvaluator3F<Beta>>;
 
+/// ScalarUDF for the Beta Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("beta_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<Beta>>;
+type Cdf = Continuous3F<CdfEvaluator3F<Beta>>;
 
+/// ScalarUDF for the Beta Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("beta_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<Beta>>;
+type Sf = Continuous3F<SfEvaluator3F<Beta>>;
 
+/// ScalarUDF for the Beta Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("beta_sf"))
 }
 
+/// Register the functions for the Beta Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }

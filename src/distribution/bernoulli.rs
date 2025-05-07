@@ -1,3 +1,34 @@
+//! Module containing functions to the Bernoulli Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Bernoulli`].
+//! 
+//! The [Bernoulli Distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution) has one
+//! parameter:
+//! 
+//! p: 0 ≤ p ≤ 1
+//! 
+//! Usage:
+//! 
+//! `bernoulli_pmf(x, p)`  
+//! `bernoulli_cdf(x, p)`  
+//! `bernoulli_sf(x, p)`
+//! 
+//! with
+//! 
+//!   `x`: {0, 1} `UInt64`/`BIGINT UNSIGNED`,  
+//!   `p`: [0, 1] `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::bernoulli::register(&mut ctx)?;
+//!     ctx.sql("SELECT bernoulli_pmf(CAST(0 AS BIGINT UNSIGNED), 0.2)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
 
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
@@ -7,24 +38,28 @@ use statrs::distribution::Bernoulli;
 use super::super::utils::discrete1u1f::Discrete1U1F;
 use super::super::utils::evaluator1u1f::{CdfEvaluator1U1F, PmfEvaluator1U1F, SfEvaluator1U1F};
 
-pub type Pmf = Discrete1U1F<PmfEvaluator1U1F<Bernoulli>>;
+type Pmf = Discrete1U1F<PmfEvaluator1U1F<Bernoulli>>;
 
+/// ScalarUDF for the Bernoulli Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("bernoulli_pmf"))
 }
 
-pub type Cdf = Discrete1U1F<CdfEvaluator1U1F<Bernoulli>>;
+type Cdf = Discrete1U1F<CdfEvaluator1U1F<Bernoulli>>;
 
+/// ScalarUDF for the Bernoulli Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("bernoulli_cdf"))
 }
 
-pub type Sf = Discrete1U1F<SfEvaluator1U1F<Bernoulli>>;
+type Sf = Discrete1U1F<SfEvaluator1U1F<Bernoulli>>;
 
+/// ScalarUDF for the Bernoulli Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("bernoulli_sf"))
 }
 
+/// Register the functions for the Bernoulli Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }

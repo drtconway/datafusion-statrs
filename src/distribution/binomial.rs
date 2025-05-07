@@ -1,3 +1,37 @@
+//! Module containing functions to the Binomial Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Binomial`].
+//! 
+//! The [Binomial Distribution](https://en.wikipedia.org/wiki/Binomial_distribution) has two
+//! parameters:
+//! 
+//! n: n ∈ N (natural numbers)  
+//! p: 0 ≤ p ≤ 1
+//! 
+//! Usage:
+//! 
+//! `bernoulli_pmf(x, n, p)`  
+//! `bernoulli_cdf(x, n, p)`  
+//! `bernoulli_sf(x, n, p)`
+//! 
+//! with
+//! 
+//!   `x`: 0 ≤ x ≤ n `UInt64`/`BIGINT UNSIGNED`,  
+//!   `n`: 0 ≤ n `UInt64`/`BIGINT UNSIGNED`,  
+//!   `p`: [0, 1] `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::binomial::register(&mut ctx)?;
+//!     ctx.sql("SELECT binomial_cdf(CAST(2 AS BIGINT UNSIGNED), CAST(5 AS BIGINT UNSIGNED), 0.2)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +40,28 @@ use statrs::distribution::Binomial;
 use crate::utils::discrete2u1f::Discrete2U1F;
 use crate::utils::evaluator2u1f::{CdfEvaluator2U1F, PmfEvaluator2U1F, SfEvaluator2U1F};
 
-pub type Pmf = Discrete2U1F<PmfEvaluator2U1F<Binomial>>;
+type Pmf = Discrete2U1F<PmfEvaluator2U1F<Binomial>>;
 
+/// ScalarUDF for the Binomial Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("binomial_pmf"))
 }
 
-pub type Cdf = Discrete2U1F<CdfEvaluator2U1F<Binomial>>;
+type Cdf = Discrete2U1F<CdfEvaluator2U1F<Binomial>>;
 
+/// ScalarUDF for the Binomial Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("binomial_cdf"))
 }
 
-pub type Sf = Discrete2U1F<SfEvaluator2U1F<Binomial>>;
+type Sf = Discrete2U1F<SfEvaluator2U1F<Binomial>>;
 
+/// ScalarUDF for the Binomial Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("binomial_sf"))
 }
 
+/// Register the functions for the Binomial Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }
