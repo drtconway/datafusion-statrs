@@ -1,3 +1,39 @@
+//! Module containing functions to the Gamma Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Gamma`].
+//! 
+//! The [Gamma Distribution](https://en.wikipedia.org/wiki/Gamma_distribution) has two
+//! parameters:
+//! 
+//! α: 0 < α (shape)
+//! λ: 0 < λ (rate)
+//! 
+//! NB There are two parameterisations of Gamma (α, θ) and (α, λ) with λ = 1/θ.
+//! 
+//! Usage:
+//! 
+//! `gamma_pdf(x, α, λ)`  
+//! `gamma_cdf(x, α, λ)`  
+//! `gamma_sf(x, α, λ)`
+//! 
+//! with
+//! 
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
+//!   `α`: (0, +∞) `Float64`/`DOUBLE`,  
+//!   `λ`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::gamma::register(&mut ctx)?;
+//!     ctx.sql("SELECT gamma_pdf(1.0, 9.0, 2.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +42,28 @@ use statrs::distribution::Gamma;
 use super::super::utils::continuous3f::Continuous3F;
 use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
-pub type Pdf = Continuous3F<PdfEvaluator3F<Gamma>>;
+type Pdf = Continuous3F<PdfEvaluator3F<Gamma>>;
 
+/// ScalarUDF for the Gamma Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("gamma_pdf"))
 }
 
-pub type Cdf = Continuous3F<CdfEvaluator3F<Gamma>>;
+type Cdf = Continuous3F<CdfEvaluator3F<Gamma>>;
 
+/// ScalarUDF for the Gamma Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("gamma_cdf"))
 }
 
-pub type Sf = Continuous3F<SfEvaluator3F<Gamma>>;
+type Sf = Continuous3F<SfEvaluator3F<Gamma>>;
 
+/// ScalarUDF for the Gamma Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("gamma_sf"))
 }
 
+/// Register the functions for the Gamma Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
