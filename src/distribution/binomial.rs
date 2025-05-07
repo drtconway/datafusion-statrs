@@ -10,9 +10,9 @@
 //! 
 //! Usage:
 //! 
-//! `bernoulli_pmf(x, n, p)`  
-//! `bernoulli_cdf(x, n, p)`  
-//! `bernoulli_sf(x, n, p)`
+//! `binomial_pmf(x, n, p)`  
+//! `binomial_cdf(x, n, p)`  
+//! `binomial_sf(x, n, p)`
 //! 
 //! with
 //! 

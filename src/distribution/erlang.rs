@@ -16,7 +16,7 @@
 //! 
 //! with
 //! 
-//!   `x`: [0], +∞) `Float64`/`DOUBLE`,  
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
 //!   `k`: (-∞, +∞) `UInt64`/`BIGINT UNSIGNED`,  
 //!   `λ`: (0, +∞) `Float64`/`DOUBLE`
 //! 
