@@ -11,7 +11,7 @@
 //! 
 //! `chi_pdf(x, k)`  
 //! `chi_cdf(x, k)`  
-//! `chi__sf(x, k)`
+//! `chi_sf(x, k)`
 //! 
 //! with
 //! 
