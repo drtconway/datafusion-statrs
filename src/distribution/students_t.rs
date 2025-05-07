@@ -24,6 +24,7 @@ pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("students_t_sf"))
 }
 
+/// Register the functions for the Student's T Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }

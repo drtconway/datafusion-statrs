@@ -24,6 +24,8 @@ pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("hypergeometric_sf"))
 }
 
+
+/// Register the functions for the Hypergeometric Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }

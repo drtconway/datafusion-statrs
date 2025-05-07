@@ -24,6 +24,7 @@ pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("triangular_sf"))
 }
 
+/// Register the functions for the Triangular Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }

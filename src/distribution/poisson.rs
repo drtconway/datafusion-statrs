@@ -24,6 +24,7 @@ pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("poisson_sf"))
 }
 
+/// Register the functions for the Poisson Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }

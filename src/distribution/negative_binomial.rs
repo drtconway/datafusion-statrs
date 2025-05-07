@@ -24,6 +24,7 @@ pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("negative_binomial_sf"))
 }
 
+/// Register the functions for the Negative Binomial Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }

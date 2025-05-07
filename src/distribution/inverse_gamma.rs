@@ -24,6 +24,7 @@ pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("inverse_inverse_gamma_sf"))
 }
 
+/// Register the functions for the Inverse-Gamma Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
 }
