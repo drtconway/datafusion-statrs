@@ -10,9 +10,9 @@
 //! 
 //! Usage:
 //! 
-//! `bernoulli_pmf(x, x0, γ)`  
-//! `bernoulli_cdf(x, x0, γ)`  
-//! `bernoulli_sf(x, x0, γ)`
+//! `cauchy_pmf(x, x0, γ)`  
+//! `cauchy_cdf(x, x0, γ)`  
+//! `cauchy_sf(x, x0, γ)`
 //! 
 //! with
 //! 
