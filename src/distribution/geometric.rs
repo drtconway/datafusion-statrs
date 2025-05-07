@@ -1,3 +1,39 @@
+//! Module containing functions to the Geometric Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Geometric`].
+//! 
+//! The [Geometric Distribution](https://en.wikipedia.org/wiki/Geometric_distribution) has one
+//! parameter:
+//! 
+//! p: (0, 1]
+//! 
+//! Note there are two interpretations of the geometric distribution: x is the number of Bernoulli
+//! trials to get one success; or the number of failures before the first success. This implementation
+//! provides the former.
+//! 
+//! Usage:
+//! 
+//! `geometric_pmf(x, p)`  
+//! `geometric_cdf(x, p)`  
+//! `geometric_sf(x, p)`
+//! 
+//! with
+//! 
+//!   `x`: (1, +∞) `UInt64`/`BIGINT UNSIGNED`,  
+//!   `p`: (0, 1] `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::chi::register(&mut ctx)?;
+//!     ctx.sql("SELECT chi_pdf(1.25, CAST(4 AS BIGINT UNSIGNED))").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -6,24 +42,28 @@ use statrs::distribution::Geometric;
 use super::super::utils::discrete1u1f::Discrete1U1F;
 use super::super::utils::evaluator1u1f::{CdfEvaluator1U1F, PmfEvaluator1U1F, SfEvaluator1U1F};
 
-pub type Pmf = Discrete1U1F<PmfEvaluator1U1F<Geometric>>;
+type Pmf = Discrete1U1F<PmfEvaluator1U1F<Geometric>>;
 
+/// ScalarUDF for the Geometric Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("geometric_pmf"))
 }
 
-pub type Cdf = Discrete1U1F<CdfEvaluator1U1F<Geometric>>;
+type Cdf = Discrete1U1F<CdfEvaluator1U1F<Geometric>>;
 
+/// ScalarUDF for the Geometric Distribution CDF
 pub fn cdf() -> ScalarUDF {
     ScalarUDF::from(Cdf::new("geometric_cdf"))
 }
 
-pub type Sf = Discrete1U1F<SfEvaluator1U1F<Geometric>>;
+type Sf = Discrete1U1F<SfEvaluator1U1F<Geometric>>;
 
+/// ScalarUDF for the Geometric Distribution SF
 pub fn sf() -> ScalarUDF {
     ScalarUDF::from(Sf::new("geometric_sf"))
 }
 
+/// Register the functions for the Geometric Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
     crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
 }
