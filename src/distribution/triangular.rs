@@ -4,13 +4,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Triangular;
 
 use crate::utils::continuous4f::Continuous4F;
-use crate::utils::evaluator4f::{CdfEvaluator4F, PdfEvaluator4F, SfEvaluator4F};
+use crate::utils::evaluator4f::{CdfEvaluator4F, LnPdfEvaluator4F, PdfEvaluator4F, SfEvaluator4F};
 
 type Pdf = Continuous4F<PdfEvaluator4F<Triangular>>;
 
 /// ScalarUDF for the Triangular PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("triangular_pdf"))
+}
+
+type LnPdf = Continuous4F<LnPdfEvaluator4F<Triangular>>;
+
+/// ScalarUDF for the Triangular log PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("triangular_ln_pdf"))
 }
 
 type Cdf = Continuous4F<CdfEvaluator4F<Triangular>>;
@@ -29,7 +36,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Triangular Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -143,6 +150,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn triangular_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT triangular_ln_pdf(3.14, 3.0, 7.0, 6.0)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -3.757872325600887);
     }
 
     #[tokio::test]

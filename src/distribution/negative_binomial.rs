@@ -4,13 +4,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::NegativeBinomial;
 
 use crate::utils::discrete1u2f::Discrete1U2F;
-use crate::utils::evaluator1u2f::{CdfEvaluator1U2F, PmfEvaluator1U2F, SfEvaluator1U2F};
+use crate::utils::evaluator1u2f::{CdfEvaluator1U2F, LnPmfEvaluator1U2F, PmfEvaluator1U2F, SfEvaluator1U2F};
 
 type Pmf = Discrete1U2F<PmfEvaluator1U2F<NegativeBinomial>>;
 
 /// ScalarUDF for the Negative Binomial PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("negative_binomial_pmf"))
+}
+
+type LnPmf = Discrete1U2F<LnPmfEvaluator1U2F<NegativeBinomial>>;
+
+/// ScalarUDF for the Negative Binomial log PMF
+pub fn ln_pmf() -> ScalarUDF {
+    ScalarUDF::from(LnPmf::new("negative_binomial_ln_pmf"))
 }
 
 type Cdf = Discrete1U2F<CdfEvaluator1U2F<NegativeBinomial>>;
@@ -29,7 +36,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Negative Binomial Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pmf(), ln_pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -137,6 +144,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn negative_binomial_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT negative_binomial_ln_pmf(CAST(2 AS BIGINT UNSIGNED), 8.0, 0.11)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -14.307747999573525);
     }
 
     #[tokio::test]

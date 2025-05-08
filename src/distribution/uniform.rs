@@ -4,13 +4,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Uniform;
 
 use super::super::utils::continuous3f::Continuous3F;
-use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
+use super::super::utils::evaluator3f::{CdfEvaluator3F, LnPdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
 type Pdf = Continuous3F<PdfEvaluator3F<Uniform>>;
 
 /// ScalarUDF for the Uniform PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("uniform_pdf"))
+}
+
+type LnPdf = Continuous3F<LnPdfEvaluator3F<Uniform>>;
+
+/// ScalarUDF for the Uniform log PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("uniform_ln_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Uniform>>;
@@ -29,7 +36,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Uniform Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -137,6 +144,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn uniform_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT uniform_ln_pdf(8.2, 8.0, 11.0)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -1.0986122886681098);
     }
 
     #[tokio::test]

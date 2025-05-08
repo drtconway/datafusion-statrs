@@ -4,13 +4,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Weibull;
 
 use super::super::utils::continuous3f::Continuous3F;
-use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
+use super::super::utils::evaluator3f::{CdfEvaluator3F, LnPdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
 type Pdf = Continuous3F<PdfEvaluator3F<Weibull>>;
 
 /// ScalarUDF for the Weibull PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("weibull_pdf"))
+}
+
+type LnPdf = Continuous3F<LnPdfEvaluator3F<Weibull>>;
+
+/// ScalarUDF for the Weibull log PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("weibull_ln_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Weibull>>;
@@ -29,7 +36,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Weibull Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -137,6 +144,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn weibull_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT weibull_ln_pdf(5.0, 1.0, 0.5)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -9.306852819440055);
     }
 
     #[tokio::test]
