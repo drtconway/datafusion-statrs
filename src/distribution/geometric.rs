@@ -14,6 +14,7 @@
 //! Usage:
 //! 
 //! `geometric_pmf(x, p)`  
+//! `geometric_ln_pmf(x, p)`  
 //! `geometric_cdf(x, p)`  
 //! `geometric_sf(x, p)`
 //! 
@@ -40,13 +41,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Geometric;
 
 use super::super::utils::discrete1u1f::Discrete1U1F;
-use super::super::utils::evaluator1u1f::{CdfEvaluator1U1F, PmfEvaluator1U1F, SfEvaluator1U1F};
+use super::super::utils::evaluator1u1f::{CdfEvaluator1U1F, LnPmfEvaluator1U1F, PmfEvaluator1U1F, SfEvaluator1U1F};
 
 type Pmf = Discrete1U1F<PmfEvaluator1U1F<Geometric>>;
 
 /// ScalarUDF for the Geometric Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("geometric_pmf"))
+}
+
+type LnPmf = Discrete1U1F<LnPmfEvaluator1U1F<Geometric>>;
+
+/// ScalarUDF for the Geometric Distribution log PMF
+pub fn ln_pmf() -> ScalarUDF {
+    ScalarUDF::from(LnPmf::new("geometric_ln_pmf"))
 }
 
 type Cdf = Discrete1U1F<CdfEvaluator1U1F<Geometric>>;
@@ -65,7 +73,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Geometric Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pmf(), ln_pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -165,6 +173,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn geometric_ln_pmf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT geometric_ln_pmf(CAST(3 AS BIGINT UNSIGNED), 0.25)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -1.9616585060234524);
     }
 
     #[tokio::test]

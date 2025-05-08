@@ -11,6 +11,7 @@
 //! Usage:
 //! 
 //! `gumbel_pdf(x, μ, β)`  
+//! `gumbel_ln_pdf(x, μ, β)`  
 //! `gumbel_cdf(x, μ, β)`  
 //! `gumbel_sf(x, μ, β)`
 //! 
@@ -38,13 +39,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Gumbel;
 
 use super::super::utils::continuous3f::Continuous3F;
-use super::super::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
+use super::super::utils::evaluator3f::{CdfEvaluator3F, LnPdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
 type Pdf = Continuous3F<PdfEvaluator3F<Gumbel>>;
 
 /// ScalarUDF for the Gumbel Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("gumbel_pdf"))
+}
+
+type LnPdf = Continuous3F<LnPdfEvaluator3F<Gumbel>>;
+
+/// ScalarUDF for the Gumbel Distribution log PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("gumbel_ln_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<Gumbel>>;
@@ -63,7 +71,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Gumbel Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -171,6 +179,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn gumbel_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT gumbel_ln_pdf(0.2, 8.0, 11.0)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -3.7209473796294246);
     }
 
     #[tokio::test]

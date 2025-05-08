@@ -4,13 +4,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Hypergeometric;
 
 use crate::utils::discrete4u::Discrete4U;
-use crate::utils::evaluator4u::{CdfEvaluator4U, PmfEvaluator4U, SfEvaluator4U};
+use crate::utils::evaluator4u::{CdfEvaluator4U, LnPmfEvaluator4U, PmfEvaluator4U, SfEvaluator4U};
 
 type Pmf = Discrete4U<PmfEvaluator4U<Hypergeometric>>;
 
 /// ScalarUDF for the Hypergeometric Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("hypergeometric_pmf"))
+}
+
+type LnPmf = Discrete4U<LnPmfEvaluator4U<Hypergeometric>>;
+
+/// ScalarUDF for the Hypergeometric Distribution log PMF
+pub fn ln_pmf() -> ScalarUDF {
+    ScalarUDF::from(LnPmf::new("hypergeometric_ln_pmf"))
 }
 
 type Cdf = Discrete4U<CdfEvaluator4U<Hypergeometric>>;
@@ -30,7 +37,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Hypergeometric Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pmf(), ln_pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -144,6 +151,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn hypergeometric_ln_pmf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT hypergeometric_ln_pmf(CAST(25 AS BIGINT UNSIGNED), CAST(500 AS BIGINT UNSIGNED), CAST(50 AS BIGINT UNSIGNED), CAST(100 AS BIGINT UNSIGNED))")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -14.854954378819315);
     }
 
     #[tokio::test]

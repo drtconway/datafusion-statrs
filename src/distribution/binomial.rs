@@ -11,6 +11,7 @@
 //! Usage:
 //! 
 //! `binomial_pmf(x, n, p)`  
+//! `binomial_ln_pmf(x, n, p)`  
 //! `binomial_cdf(x, n, p)`  
 //! `binomial_sf(x, n, p)`
 //! 
@@ -38,13 +39,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Binomial;
 
 use crate::utils::discrete2u1f::Discrete2U1F;
-use crate::utils::evaluator2u1f::{CdfEvaluator2U1F, PmfEvaluator2U1F, SfEvaluator2U1F};
+use crate::utils::evaluator2u1f::{CdfEvaluator2U1F, LnPmfEvaluator2U1F, PmfEvaluator2U1F, SfEvaluator2U1F};
 
 type Pmf = Discrete2U1F<PmfEvaluator2U1F<Binomial>>;
 
 /// ScalarUDF for the Binomial Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("binomial_pmf"))
+}
+
+type LnPmf = Discrete2U1F<LnPmfEvaluator2U1F<Binomial>>;
+
+/// ScalarUDF for the Binomial Distribution PMF
+pub fn ln_pmf() -> ScalarUDF {
+    ScalarUDF::from(LnPmf::new("binomial_ln_pmf"))
 }
 
 type Cdf = Discrete2U1F<CdfEvaluator2U1F<Binomial>>;
@@ -63,7 +71,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Binomial Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pmf(), ln_pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -171,6 +179,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn binomial_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT binomial_ln_pmf(CAST(2 AS BIGINT UNSIGNED), CAST(10 AS BIGINT UNSIGNED), 0.5)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -3.1248093158291335);
     }
 
     #[tokio::test]

@@ -1,23 +1,24 @@
 //! Module containing functions to the Bernoulli Distribution.
-//! 
+//!
 //! Implemented by [`statrs::distribution::Bernoulli`].
-//! 
+//!
 //! The [Bernoulli Distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution) has one
 //! parameter:
-//! 
+//!
 //! p: 0 ≤ p ≤ 1
-//! 
+//!
 //! Usage:
-//! 
+//!
 //! `bernoulli_pmf(x, p)`  
+//! `bernoulli_ln_pmf(x, p)`  
 //! `bernoulli_cdf(x, p)`  
 //! `bernoulli_sf(x, p)`
-//! 
+//!
 //! with
-//! 
+//!
 //!   `x`: {0, 1} `UInt64`/`BIGINT UNSIGNED`,  
 //!   `p`: [0, 1] `Float64`/`DOUBLE`
-//! 
+//!
 //! Examples
 //! ```
 //! #[tokio::main(flavor = "current_thread")]
@@ -36,13 +37,22 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Bernoulli;
 
 use super::super::utils::discrete1u1f::Discrete1U1F;
-use super::super::utils::evaluator1u1f::{CdfEvaluator1U1F, PmfEvaluator1U1F, SfEvaluator1U1F};
+use super::super::utils::evaluator1u1f::{
+    CdfEvaluator1U1F, LnPmfEvaluator1U1F, PmfEvaluator1U1F, SfEvaluator1U1F,
+};
 
 type Pmf = Discrete1U1F<PmfEvaluator1U1F<Bernoulli>>;
 
 /// ScalarUDF for the Bernoulli Distribution PMF
 pub fn pmf() -> ScalarUDF {
     ScalarUDF::from(Pmf::new("bernoulli_pmf"))
+}
+
+type LnPmf = Discrete1U1F<LnPmfEvaluator1U1F<Bernoulli>>;
+
+/// ScalarUDF for the Bernoulli Distribution log PMF
+pub fn ln_pmf() -> ScalarUDF {
+    ScalarUDF::from(LnPmf::new("bernoulli_ln_pmf"))
 }
 
 type Cdf = Discrete1U1F<CdfEvaluator1U1F<Bernoulli>>;
@@ -61,7 +71,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Bernoulli Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pmf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pmf(), ln_pmf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -161,6 +171,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn bernoulli_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT bernoulli_ln_pmf(CAST(0 AS BIGINT UNSIGNED), 0.2)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -0.2231435513142097);
     }
 
     #[tokio::test]

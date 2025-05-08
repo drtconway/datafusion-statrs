@@ -36,13 +36,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Chi;
 
 use crate::utils::continuous1f1u::Continuous1F1U;
-use crate::utils::evaluator1f1u::{CdfEvaluator1F1U, PdfEvaluator1F1U, SfEvaluator1F1U};
+use crate::utils::evaluator1f1u::{CdfEvaluator1F1U, LnPdfEvaluator1F1U, PdfEvaluator1F1U, SfEvaluator1F1U};
 
 type Pdf = Continuous1F1U<PdfEvaluator1F1U<Chi>>;
 
 /// ScalarUDF for the Chi Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("chi_pdf"))
+}
+
+type LnPdf = Continuous1F1U<LnPdfEvaluator1F1U<Chi>>;
+
+/// ScalarUDF for the Chi Distribution log PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("chi_ln_pdf"))
 }
 
 type Cdf = Continuous1F1U<CdfEvaluator1F1U<Chi>>;
@@ -61,7 +68,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Binomial Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -165,6 +172,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn chi_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT chi_ln_pdf(0.2, CAST(2 AS BIGINT UNSIGNED))")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -1.6294379124340999);
     }
 
     #[tokio::test]

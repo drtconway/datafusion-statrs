@@ -10,6 +10,7 @@
 //! Usage:
 //! 
 //! `exp_pdf(x, λ)`  
+//! `exp_ln_pdf(x, λ)`  
 //! `exp_cdf(x, λ)`  
 //! `exp_sf(x, λ)`
 //! 
@@ -36,13 +37,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Exp;
 
 use crate::utils::continuous2f::Continuous2F;
-use crate::utils::evaluator2f::{CdfEvaluator2F, PdfEvaluator2F, SfEvaluator2F};
+use crate::utils::evaluator2f::{CdfEvaluator2F, LnPdfEvaluator2F, PdfEvaluator2F, SfEvaluator2F};
 
 type Pdf = Continuous2F<PdfEvaluator2F<Exp>>;
 
 /// ScalarUDF for the Exponential Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("exp_pdf"))
+}
+
+type LnPdf = Continuous2F<LnPdfEvaluator2F<Exp>>;
+
+/// ScalarUDF for the Exponential Distribution log PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("exp_ln_pdf"))
 }
 
 type Cdf = Continuous2F<CdfEvaluator2F<Exp>>;
@@ -61,7 +69,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Exponential Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -165,6 +173,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn exp_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT exp_ln_pdf(0.2, 2.0)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), 0.29314718055994526);
     }
 
     #[tokio::test]

@@ -11,6 +11,7 @@
 //! Usage:
 //! 
 //! `erlang_pdf(x, k, λ)`  
+//! `erlang_ln_pdf(x, k, λ)`  
 //! `erlang_cdf(x, k, λ)`  
 //! `erlang_sf(x, k, λ)`
 //! 
@@ -38,13 +39,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::Erlang;
 
 use crate::utils::continuous1f1u1f::Continuous1F1U1F;
-use crate::utils::evaluator1f1u1f::{CdfEvaluator1F1U1F, PdfEvaluator1F1U1F, SfEvaluator1F1U1F};
+use crate::utils::evaluator1f1u1f::{CdfEvaluator1F1U1F, LnPdfEvaluator1F1U1F, PdfEvaluator1F1U1F, SfEvaluator1F1U1F};
 
 type Pdf = Continuous1F1U1F<PdfEvaluator1F1U1F<Erlang>>;
 
 /// ScalarUDF for the Erlang Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("erlang_pdf"))
+}
+
+type LnPdf = Continuous1F1U1F<LnPdfEvaluator1F1U1F<Erlang>>;
+
+/// ScalarUDF for the Erlang Distribution PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("erlang_ln_pdf"))
 }
 
 type Cdf = Continuous1F1U1F<CdfEvaluator1F1U1F<Erlang>>;
@@ -63,7 +71,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Erlang Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -171,6 +179,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn erlang_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT erlang_ln_pdf(0.2, CAST(1 AS BIGINT UNSIGNED), 2.0)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), 0.29314718055994526);
     }
 
     #[tokio::test]

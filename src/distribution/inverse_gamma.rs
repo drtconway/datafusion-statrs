@@ -4,13 +4,20 @@ use datafusion::logical_expr::ScalarUDF;
 use statrs::distribution::InverseGamma;
 
 use crate::utils::continuous3f::Continuous3F;
-use crate::utils::evaluator3f::{CdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
+use crate::utils::evaluator3f::{CdfEvaluator3F, LnPdfEvaluator3F, PdfEvaluator3F, SfEvaluator3F};
 
 type Pdf = Continuous3F<PdfEvaluator3F<InverseGamma>>;
 
 /// ScalarUDF for the Inverse Gamma Distribution PDF
 pub fn pdf() -> ScalarUDF {
     ScalarUDF::from(Pdf::new("inverse_inverse_gamma_pdf"))
+}
+
+type LnPdf = Continuous3F<LnPdfEvaluator3F<InverseGamma>>;
+
+/// ScalarUDF for the Inverse Gamma Distribution log PDF
+pub fn ln_pdf() -> ScalarUDF {
+    ScalarUDF::from(LnPdf::new("inverse_gamma_ln_pdf"))
 }
 
 type Cdf = Continuous3F<CdfEvaluator3F<InverseGamma>>;
@@ -29,7 +36,7 @@ pub fn sf() -> ScalarUDF {
 
 /// Register the functions for the Inverse-Gamma Distribution
 pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionError> {
-    crate::utils::register::register(registry, vec![pdf(), cdf(), sf()])
+    crate::utils::register::register(registry, vec![pdf(), ln_pdf(), cdf(), sf()])
 }
 
 #[cfg(test)]
@@ -137,6 +144,24 @@ mod tests {
                 assert!(false);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn inverse_gamma_ln_pdf_success() {
+        let mut ctx = SessionContext::new();
+        register(&mut ctx).unwrap();
+        let res = ctx
+            .sql("SELECT inverse_gamma_ln_pdf(0.2, 8.0, 11.0)")
+            .await
+            .unwrap()
+            .collect()
+            .await
+            .unwrap();
+        assert_eq!(res.len(), 1);
+        assert_eq!(res[0].num_columns(), 1);
+        assert_eq!(res[0].num_rows(), 1);
+        let res_col = as_float64_array(res[0].column(0)).unwrap();
+        assert_eq!(res_col.value(0), -29.857057966771517);
     }
 
     #[tokio::test]

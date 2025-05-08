@@ -37,14 +37,6 @@ use statrs::distribution::Dirac;
 use crate::utils::continuous2f::Continuous2F;
 use crate::utils::evaluator2f::{CdfEvaluator2F, SfEvaluator2F};
 
-/*
-type Pdf = Continuous2F<PdfEvaluator2F<Dirac>>;
-
-pub fn pdf() -> ScalarUDF {
-    ScalarUDF::from(Pdf::new("dirac_pdf"))
-}
-*/
-
 type Cdf = Continuous2F<CdfEvaluator2F<Dirac>>;
 
 /// ScalarUDF for the Dirac Distribution CDF
