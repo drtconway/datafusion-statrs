@@ -1,3 +1,40 @@
+//! Module containing functions to the Laplace Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Laplace`].
+//! 
+//! The [Laplace Distribution](https://en.wikipedia.org/wiki/Laplace_distribution) has two
+//! parameters:
+//! 
+//! μ: μ ∈ R (real numbers)
+//! b: 0 < b
+//! 
+//! NB There are two parameterisations of Laplace (α, θ) and (α, λ) with λ = 1/θ.
+//! 
+//! Usage:
+//! 
+//! `laplace_pdf(x, μ, b)`  
+//! `laplace_ln_pdf(x, μ, b)`  
+//! `laplace_cdf(x, μ, b)`  
+//! `laplace_sf(x, μ, b)`
+//! 
+//! with
+//! 
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
+//!   `μ`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `b`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::laplace::register(&mut ctx)?;
+//!     ctx.sql("SELECT laplace_pdf(1.0, 9.0, 2.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

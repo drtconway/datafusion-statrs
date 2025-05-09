@@ -1,3 +1,40 @@
+//! Module containing functions to the Pareto Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Pareto`].
+//! 
+//! The [Pareto Distribution](https://en.wikipedia.org/wiki/Pareto_distribution) has two
+//! parameters:
+//! 
+//! x_m: 0 < x_m  
+//! α: 0 < α
+//! 
+//! NB There are two parameterisations of Pareto (α, θ) and (α, λ) with λ = 1/θ.
+//! 
+//! Usage:
+//! 
+//! `pareto_pdf(x, x_m, α)`  
+//! `pareto_ln_pdf(x, x_m, α)`  
+//! `pareto_cdf(x, x_m, α)`  
+//! `pareto_sf(x, x_m, α)`
+//! 
+//! with
+//! 
+//!   `x`: [x_m, +∞) `Float64`/`DOUBLE`,  
+//!   `x_m`: (0, +∞) `Float64`/`DOUBLE`,  
+//!   `α`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::pareto::register(&mut ctx)?;
+//!     ctx.sql("SELECT pareto_pdf(3.0, 1.0, 2.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

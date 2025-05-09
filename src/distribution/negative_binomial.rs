@@ -1,3 +1,38 @@
+//! Module containing functions to the Negative Binomial Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Binomial`].
+//! 
+//! The [Negative Binomial Distribution](https://en.wikipedia.org/wiki/Negative_binomial_distribution) has two
+//! parameters:
+//! 
+//! r: 0 < r  
+//! p: 0 ≤ p ≤ 1
+//! 
+//! Usage:
+//! 
+//! `negative_binomial_pmf(x, r, p)`  
+//! `negative_binomial_ln_pmf(x, r, p)`  
+//! `negative_binomial_cdf(x, r, p)`  
+//! `negative_binomial_sf(x, r, p)`
+//! 
+//! with
+//! 
+//!   `x`: 0 ≤ x ≤ n `UInt64`/`BIGINT UNSIGNED`,  
+//!   `r`: 0 < r `Float64`/`DOUBLE`,  
+//!   `p`: [0, 1] `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::negative_binomial::register(&mut ctx)?;
+//!     ctx.sql("SELECT negative_binomial_cdf(CAST(2 AS BIGINT UNSIGNED), 5.0, 0.2)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

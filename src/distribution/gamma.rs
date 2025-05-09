@@ -5,7 +5,7 @@
 //! The [Gamma Distribution](https://en.wikipedia.org/wiki/Gamma_distribution) has two
 //! parameters:
 //! 
-//! α: 0 < α (shape)
+//! α: 0 < α (shape)  
 //! λ: 0 < λ (rate)
 //! 
 //! NB There are two parameterisations of Gamma (α, θ) and (α, λ) with λ = 1/θ.

@@ -1,3 +1,38 @@
+//! Module containing functions to the Inverse Gamma Distribution.
+//! 
+//! Implemented by [`statrs::distribution::InverseGamma`].
+//! 
+//! The [Inverse Gamma Distribution](https://en.wikipedia.org/wiki/Inverse-gamma_distribution) has two
+//! parameters:
+//! 
+//! α: 0 < α (shape)
+//! λ: 0 < λ (rate)
+//! 
+//! Usage:
+//! 
+//! `inverse_gamma_pdf(x, α, λ)`  
+//! `inverse_gamma_ln_pdf(x, α, λ)`  
+//! `inverse_gamma_cdf(x, α, λ)`  
+//! `inverse_gamma_sf(x, α, λ)`
+//! 
+//! with
+//! 
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
+//!   `α`: (0, +∞) `Float64`/`DOUBLE`,  
+//!   `λ`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::inverse_gamma::register(&mut ctx)?;
+//!     ctx.sql("SELECT inverse_gamma_cdf(1.0, 9.0, 2.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
@@ -10,7 +45,7 @@ type Pdf = Continuous3F<PdfEvaluator3F<InverseGamma>>;
 
 /// ScalarUDF for the Inverse Gamma Distribution PDF
 pub fn pdf() -> ScalarUDF {
-    ScalarUDF::from(Pdf::new("inverse_inverse_gamma_pdf"))
+    ScalarUDF::from(Pdf::new("inverse_gamma_pdf"))
 }
 
 type LnPdf = Continuous3F<LnPdfEvaluator3F<InverseGamma>>;
@@ -24,14 +59,14 @@ type Cdf = Continuous3F<CdfEvaluator3F<InverseGamma>>;
 
 /// ScalarUDF for the Inverse Gamma Distribution CDF
 pub fn cdf() -> ScalarUDF {
-    ScalarUDF::from(Cdf::new("inverse_inverse_gamma_cdf"))
+    ScalarUDF::from(Cdf::new("inverse_gamma_cdf"))
 }
 
 type Sf = Continuous3F<SfEvaluator3F<InverseGamma>>;
 
 /// ScalarUDF for the Inverse Gamma Distribution SF
 pub fn sf() -> ScalarUDF {
-    ScalarUDF::from(Sf::new("inverse_inverse_gamma_sf"))
+    ScalarUDF::from(Sf::new("inverse_gamma_sf"))
 }
 
 /// Register the functions for the Inverse-Gamma Distribution

@@ -1,3 +1,36 @@
+//! Module containing functions to the Poisson Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Poisson`].
+//! 
+//! The [Poisson Distribution](https://en.wikipedia.org/wiki/Poisson_distribution) has two
+//! parameters:
+//! 
+//! λ: 0 < λ
+//! 
+//! Usage:
+//! 
+//! `poisson_pmf(x, λ)`  
+//! `poisson_ln_pmf(x, λ)`  
+//! `poisson_cdf(x, λ)`  
+//! `poisson_sf(x, λ)`
+//! 
+//! with
+//! 
+//!   `x`: 0 ≤ x `UInt64`/`BIGINT UNSIGNED`,  
+//!   `λ`: 0 < λ `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::poisson::register(&mut ctx)?;
+//!     ctx.sql("SELECT poisson_cdf(CAST(2 AS BIGINT UNSIGNED), 0.2)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

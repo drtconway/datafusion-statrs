@@ -1,3 +1,47 @@
+//! Module containing functions to the Hypergeometric Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Hypergeometric`].
+//! 
+//! The [Hypergeometric Distribution](https://en.wikipedia.org/wiki/Hypergeometric_distribution) has three
+//! parameters:
+//! 
+//!  N: {0, 1, 2, ...}  
+//!  K: {0, 1, 2, ..., N}  
+//!  n: {0, 1, 2, ..., N}  
+//! 
+//! Note there are two interpretations of the geometric distribution: x is the number of Bernoulli
+//! trials to get one success; or the number of failures before the first success. This implementation
+//! provides the former.
+//! 
+//! Usage:
+//! 
+//! `hypergeometric_pmf(k, N, K, n)`  
+//! `hypergeometric_ln_pmf(x, N, K, n)`  
+//! `hypergeometric_cdf(x, N, K, n)`  
+//! `hypergeometric_sf(x, N, K, n)`
+//! 
+//! with
+//! 
+//!   `k`: [max(0, n + K - N), min(n, K)] `UInt64`/`BIGINT UNSIGNED`,  
+//!   `N`: [0, +∞) `UInt64`/`BIGINT UNSIGNED`,  
+//!   `K`: [0, N] `UInt64`/`BIGINT UNSIGNED`,  
+//!   `n`: [0, N] `UInt64`/`BIGINT UNSIGNED`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::hypergeometric::register(&mut ctx)?;
+//!     ctx.sql("SELECT hypergeometric_ln_pmf(CAST(25 AS BIGINT UNSIGNED),
+//!                                           CAST(500 AS BIGINT UNSIGNED),
+//!                                           CAST(50 AS BIGINT UNSIGNED),
+//!                                           CAST(100 AS BIGINT UNSIGNED))").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

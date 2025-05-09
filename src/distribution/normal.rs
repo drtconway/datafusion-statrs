@@ -1,3 +1,38 @@
+//! Module containing functions to the Normal Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Normal`].
+//! 
+//! The [Normal Distribution](https://en.wikipedia.org/wiki/Normal_distribution) has two
+//! parameters:
+//! 
+//! μ: μ ∈ R (real numbers) 
+//! σ: 0 < σ (rate)
+//! 
+//! Usage:
+//! 
+//! `normal_pdf(x, μ, σ)`  
+//! `normal_ln_pdf(x, μ, σ)`  
+//! `normal_cdf(x, μ, σ)`  
+//! `normal_sf(x, μ, σ)`
+//! 
+//! with
+//! 
+//!   `x`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `μ`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `σ`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::normal::register(&mut ctx)?;
+//!     ctx.sql("SELECT normal_pdf(1.1, 9.0, 1.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
