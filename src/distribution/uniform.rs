@@ -1,3 +1,38 @@
+//! Module containing functions to the Uniform Distribution.
+//!
+//! Implemented by [`statrs::distribution::Uniform`].
+//!
+//! The [Uniform Distribution](https://en.wikipedia.org/wiki/Uniform_distribution) has two
+//! parameters:
+//!
+//! a: a ∈ R (real numbers)  
+//! b: a < b
+//!
+//! Usage:
+//!
+//! `uniform_pmf(x, a, b)`  
+//! `uniform_ln_pmf(x, a, b)`  
+//! `uniform_cdf(x, a, b)`  
+//! `uniform_sf(x, a, b)`
+//!
+//! with
+//!
+//!   `x`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `a`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `b`: (a, +∞) `Float64`/`DOUBLE`
+//!
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::uniform::register(&mut ctx)?;
+//!     ctx.sql("SELECT uniform_cdf(0.2, 0.0, 1.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

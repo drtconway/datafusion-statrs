@@ -1,3 +1,38 @@
+//! Module containing functions to the Weibull Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Weibull`].
+//! 
+//! The [Weibull Distribution](https://en.wikipedia.org/wiki/Weibull_distribution) has two
+//! parameters:
+//! 
+//! λ: 0 < λ  
+//! k: 0 < k
+//! 
+//! Usage:
+//! 
+//! `weibull_pdf(x, λ, k)`  
+//! `weibull_ln_pdf(x, λ, k)`  
+//! `weibull_cdf(x, λ, k)`  
+//! `weibull_sf(x, λ, k)`
+//! 
+//! with
+//! 
+//!   `x`: [0, +∞) `Float64`/`DOUBLE`,  
+//!   `λ`: (0, +∞) `Float64`/`DOUBLE`,  
+//!   `k`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::weibull::register(&mut ctx)?;
+//!     ctx.sql("SELECT weibull_cdf(1.0, 9.0, 2.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

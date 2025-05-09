@@ -1,3 +1,40 @@
+//! Module containing functions to the Student's T Distribution.
+//! 
+//! Implemented by [`statrs::distribution::StudentsT`].
+//! 
+//! The [Student's T Distribution](https://en.wikipedia.org/wiki/Student%27s_t-distribution) has three
+//! parameters:
+//! 
+//! μ: μ ∈ R (real numbers) 
+//! σ: 0 < σ  
+//! ν: 0 < ν
+//! 
+//! Usage:
+//! 
+//! `students_t_pdf(x, μ, σ, ν)`  
+//! `students_t_ln_pdf(x, μ, σ, ν)`  
+//! `students_t_cdf(x, μ, σ, ν)`  
+//! `students_t_sf(x, μ, σ, ν)`
+//! 
+//! with
+//! 
+//!   `x`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `μ`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `σ`: (0, +∞) `Float64`/`DOUBLE`,  
+//!   `ν`: (0, +∞) `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::students_t::register(&mut ctx)?;
+//!     ctx.sql("SELECT students_t_cdf(1.0, 0.0, 1.0, 2.0)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;

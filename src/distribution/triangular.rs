@@ -1,3 +1,40 @@
+//! Module containing functions to the Triangular Distribution.
+//! 
+//! Implemented by [`statrs::distribution::Triangular`].
+//! 
+//! The [Triangular Distribution](https://en.wikipedia.org/wiki/Triangular_distribution) has three
+//! parameters:
+//! 
+//! a: a ∈ R (real numbers) 
+//! b: a < b 
+//! c: a ≤ c ≤ b
+//! 
+//! Usage:
+//! 
+//! `triangular_pdf(x, a, b, c)`  
+//! `triangular_ln_pdf(x, a, b, c)`  
+//! `triangular_cdf(x, a, b, c)`  
+//! `triangular_sf(x, a, b, c)`
+//! 
+//! with
+//! 
+//!   `x`: [a, b] `Float64`/`DOUBLE`,  
+//!   `a`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `b`: (a, +∞) `Float64`/`DOUBLE`,  
+//!   `c`: [a, b] `Float64`/`DOUBLE`
+//! 
+//! Examples
+//! ```
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() -> std::io::Result<()> {
+//!     let mut ctx = datafusion::prelude::SessionContext::new();
+//!     datafusion_statrs::distribution::triangular::register(&mut ctx)?;
+//!     ctx.sql("SELECT triangular_pdf(1.1, 1.0, 3.0, 2.5)").await?
+//!        .show().await?;
+//!     Ok(())
+//! }
+//! ```
+
 use datafusion::error::DataFusionError;
 use datafusion::execution::FunctionRegistry;
 use datafusion::logical_expr::ScalarUDF;
