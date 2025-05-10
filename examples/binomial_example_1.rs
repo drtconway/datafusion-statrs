@@ -25,44 +25,29 @@ async fn main() -> std::io::Result<()> {
     ])?
 
     // Add columns with the min and max of heads and tails.
-    .select(vec![
-        col("coin_id"),
-        col("tosses"),
-        col("heads"),
-        col("tails"),
-        (case(col("heads").lt(col("tails")))
+    .with_column(
+        "min",
+        case(col("heads").lt(col("tails")))
             .when(lit(true), col("heads"))
-            .otherwise(col("tails")))?
-        .alias("min"),
-        (case(col("heads").gt(col("tails")))
+            .otherwise(col("tails"))?,
+    )?
+    .with_column(
+        "max",
+        case(col("heads").gt(col("tails")))
             .when(lit(true), col("heads"))
-            .otherwise(col("tails")))?
-        .alias("max"),
-    ])?
+            .otherwise(col("tails"))?,
+    )?
 
     // Now compute the probability of a more extreme outcome as the
     // probability of a lower min and a higher max under the assumption
     // that the coin is fair.
-    .select(vec![
-        col("coin_id"),
-        col("tosses"),
-        col("heads"),
-        col("tails"),
-        col("min"),
-        col("max"),
-        (binom_cdf.call(vec![col("min"), col("tosses"), lit(0.5)])).alias("lower"),
-        (binom_sf.call(vec![col("max"), col("tosses"), lit(0.5)])).alias("upper"),
-    ])?
+    .with_column("lower", binom_cdf.call(vec![col("min"), col("tosses"), lit(0.5)]))?
+    .with_column("upper", binom_sf.call(vec![col("max"), col("tosses"), lit(0.5)]))?
 
     // Now compute the p-value for the null hypothesis that the coin is fair
-    .select(vec![
-        col("coin_id"),
-        col("tosses"),
-        col("heads"),
-        col("tails"),
-        (col("lower") + col("upper")).alias("p_value"),
-    ])?
-    
+    .with_column("p_value", col("lower") + col("upper"))?
+    .drop_columns(&["min", "max", "lower", "upper"])?
+
     // Filter for significance
     .filter(col("p_value").lt(lit(0.01)))?
     .show()
