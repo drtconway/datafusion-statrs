@@ -80,6 +80,7 @@ pub fn register(registry: &mut dyn FunctionRegistry) -> Result<(), DataFusionErr
 mod tests {
     use std::sync::Arc;
 
+    use assert_eq_float::assert_eq_float;
     use datafusion::{
         arrow::{
             array::{Float64Array, RecordBatch, UInt64Array},
@@ -143,8 +144,8 @@ mod tests {
         assert_eq!(res[0].num_columns(), 1);
         assert_eq!(res[0].num_rows(), 4);
         let res_col = as_float64_array(res[0].column(0)).unwrap();
-        assert_eq!(res_col.value(0), 0.0);
-        assert_eq!(res_col.value(1), 0.0791015625);
+        assert_eq_float!(res_col.value(0), 0.0);
+        assert_eq_float!(res_col.value(1), 0.0791015625);
         assert!(res_col.value(2).is_nan());
         assert!(res_col.value(3).is_nan());
     }
@@ -190,7 +191,7 @@ mod tests {
         assert_eq!(res[0].num_columns(), 1);
         assert_eq!(res[0].num_rows(), 1);
         let res_col = as_float64_array(res[0].column(0)).unwrap();
-        assert_eq!(res_col.value(0), -1.9616585060234524);
+        assert_eq_float!(res_col.value(0), -1.9616585060234524);
     }
 
     #[tokio::test]
@@ -218,8 +219,8 @@ mod tests {
         assert_eq!(res[0].num_columns(), 1);
         assert_eq!(res[0].num_rows(), 4);
         let res_col = as_float64_array(res[0].column(0)).unwrap();
-        assert_eq!(res_col.value(0), 0.0);
-        assert_eq!(res_col.value(1), 0.7626953124999999);
+        assert_eq_float!(res_col.value(0), 0.0);
+        assert_eq_float!(res_col.value(1), 0.7626953124999999);
         assert!(res_col.value(2).is_nan());
         assert!(res_col.value(3).is_nan());
     }
@@ -249,8 +250,8 @@ mod tests {
         assert_eq!(res[0].num_columns(), 1);
         assert_eq!(res[0].num_rows(), 4);
         let res_col = as_float64_array(res[0].column(0)).unwrap();
-        assert_eq!(res_col.value(0), 1.0);
-        assert_eq!(res_col.value(1), 0.23730468750000006);
+        assert_eq_float!(res_col.value(0), 1.0);
+        assert_eq_float!(res_col.value(1), 0.23730468750000006);
         assert!(res_col.value(2).is_nan());
         assert!(res_col.value(3).is_nan());
     }

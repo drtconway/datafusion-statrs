@@ -13,3 +13,6 @@ datafusion-macros = "47.0.0"
 log = "0.4.27"
 statrs = "0.18.0"
 tokio = "1.44.2"
+
+[dev-dependencies]
+assert-eq-float = "0.1.4"
