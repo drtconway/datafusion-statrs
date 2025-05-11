@@ -17,8 +17,8 @@
 //! 
 //! with
 //! 
-//!   `x`: [-∞, +∞) `Float64`/`DOUBLE`,  
-//!   `μ`: [-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `x`: (-∞, +∞) `Float64`/`DOUBLE`,  
+//!   `μ`: (-∞, +∞) `Float64`/`DOUBLE`,  
 //!   `β`: (0, +∞) `Float64`/`DOUBLE`,
 //! 
 //! Examples
