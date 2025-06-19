@@ -2,6 +2,8 @@
 edition = "2024"
 name = "datafusion-statrs"
 version = "0.2.0"
+description = "bindings to expose statrs functions in datafusion"
+license = "Apache-2.0"
 
 [lib]
 name = "datafusion_statrs"
