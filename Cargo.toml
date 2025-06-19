@@ -1,18 +1,18 @@
 [package]
-name = "datafusion-statrs"
-version = "0.1.0"
 edition = "2024"
+name = "datafusion-statrs"
+version = "0.2.0"
 
 [lib]
 name = "datafusion_statrs"
 
 [dependencies]
-datafusion = "47.0.0"
-datafusion-doc = "47.0.0"
-datafusion-macros = "47.0.0"
+datafusion = "48.0.0"
+datafusion-doc = "48.0.0"
+datafusion-macros = "48.0.0"
 log = "0.4.27"
-statrs = "0.18.0"
-tokio = "1.44.2"
+statrs = {version = "0.18.0"}
 
 [dev-dependencies]
 assert-eq-float = "0.1.4"
+tokio = {version = "1.45.1", features = ["full"]}
